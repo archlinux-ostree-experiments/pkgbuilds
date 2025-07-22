@@ -1,0 +1,3 @@
+[submodule "grub-blscfg"]
+	path = grub-blscfg
+	url = https://github.com/archlinux-ostree-experiments/grub-blscfg.git
