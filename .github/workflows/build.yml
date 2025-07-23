@@ -51,3 +51,7 @@ jobs:
           files: |
             output/*.pkg.tar.zst
             output/*.pkg.tar.zst.sig
+            output/*.db
+            output/*.db.tar.zst
+            output/*.files
+            output/*.files.tar.zst
