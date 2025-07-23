@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Build packages
         id: build
         uses: archlinux-ostree-experiments/builder@main
@@ -37,7 +39,7 @@ jobs:
         uses: archlinux-ostree-experiments/builder@main
         with:
           action: 'build-repo'
-          target: "output"
+          target: 'output'
           artifacts: 'arch-ostree-experiments-repo'
           gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
       - name: Upload release
