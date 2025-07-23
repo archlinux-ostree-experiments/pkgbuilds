@@ -1,0 +1,50 @@
+#
+name: Create and publish Arch Linux packages
+
+# Configures this workflow to run every time a change is pushed to the branch called `release`.
+on:
+  push:
+    branches: ["main"]
+
+# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build packages
+        id: build
+        uses: archlinux-ostree-experiments/builder@main
+        with:
+          action: 'build-package'
+          target: |
+            bootc-git
+            bootupd-arch-git
+            grub-blscfg
+          artifacts: 'output'
+          gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
+      - name: Create repository
+        id: repo
+        uses: archlinux-ostree-experiments/builder@main
+        with:
+          action: 'build-repo'
+          target: "output"
+          artifacts: 'arch-ostree-experiments-repo'
+          gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
+      - name: Upload release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: latest
+          files: |
+            output/*.pkg.tar.zst
+            output/*.pkg.tar.zst.sig
