@@ -3,13 +3,14 @@
 pkgname=bootupd-arch-git
 _pkgname=bootupd
 pkgver=0.2.28.r21.g1645ef3
-pkgrel=1
+pkgrel=2
 pkgdesc="Bootloader updater"
 arch=('x86_64' 'i686' 'armv6h' 'armv7h')
 url="https://github.com/archlinux-ostree-experiments/bootupd"
 license=('Apache-2.0')
 depends=(gcc-libs
-         glibc)
+         glibc
+         efibootmgr)
 makedepends=(cargo
              git)
 provides=("bootupd=$pkgver")
