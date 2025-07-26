@@ -14,7 +14,7 @@ env:
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
-  build-and-push-image:
+  build-packages-publish-repo:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -24,8 +24,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Build packages
-        id: build
+      - name: Build packages (1st batch w/ dependencies)
+        id: build1
         uses: archlinux-ostree-experiments/builder@main
         with:
           action: 'build-package'
@@ -33,15 +33,32 @@ jobs:
             bootc-git
             bootupd-arch-git
             grub-blscfg
+            shim-fedora
           artifacts: 'output'
+          install_dependencies: 'true'
+          install_package: 'true'
+          packager: 'archlinux-ostree-experiments <marco@wuthoehle.de>'
           gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
+      - name: Build packages (2nd batch w/ manual dependency management)
+        id: build2
+        uses: archlinux-ostree-experiments/builder@main
+        with:
+          action: 'build-package'
+          target: |
+            grub-blscfg-signed
+          artifacts: 'output'
+          install_dependencies: false
+          install_package: false
+          packager: 'archlinux-ostree-experiments <marco@wuthoehle.de>'
+          gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
+          sbsign: '${{ secrets.MOK_KEY_PEM_2025 }}'
       - name: Create repository
         id: repo
         uses: archlinux-ostree-experiments/builder@main
         with:
           action: 'build-repo'
           target: 'output'
-          artifacts: 'arch-ostree-experiments-repo'
+          artifacts: 'archlinux-ostree-experiments-repo'
           gpgsign: '${{ secrets.GPG_KEY_PEM_2025 }}'
       - name: Upload release
         id: release

@@ -1,0 +1,34 @@
+# Maintainer: Marco Huenseler <marco@wuthoehle.de>
+
+pkgname='grub-blscfg-signed'
+_pkgname='grub'
+pkgver='2.12.r292.g73d1c959'
+pkgrel='1'
+pkgdesc='GNU GRand Unified Bootloader (2) - Signed for use with Secure Boot'
+url='https://www.gnu.org/software/grub/'
+arch=('x86_64')
+license=('GPL-3.0-or-later')
+options=('!strip' '!debug')
+makedepends=(
+  grub-blscfg
+  sbsigntools
+)
+source=("MOK.key"
+        "MOK.crt"
+        "modules")
+sha256sums=("SKIP"
+            "9032ab04fac4da36b65ea00f4c9644f144977edaf84f0c1c36a41caf40890257"
+            "SKIP")
+
+prepare() {
+    MODULES=$(< modules)
+    echo "Creating GRUB image using the following modules:"
+    echo $MODULES
+    grub-mkimage -k MOK.crt -o grubx64.efi -O x86_64-efi -s /usr/share/grub/sbat.csv --prefix= -v $MODULES
+    echo "Sign grubx64.efi..."
+    sbsign --key MOK.key --cert MOK.crt --output grubx64.efi grubx64.efi
+}
+
+package() {
+	install -Dm0644 "${srcdir}/grubx64.efi" "${pkgdir}/boot/efi/EFI/archostree/grubx64.efi"
+}
