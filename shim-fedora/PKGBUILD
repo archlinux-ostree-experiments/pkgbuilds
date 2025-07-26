@@ -1,4 +1,4 @@
-# Maintainer: nl6720 <nl6720@archlinux.org>
+# Maintainer: Marco Huenseler <marco@wuthoehle.de>
 
 pkgname='shim-fedora'
 _pkgname='shim'
